@@ -4,14 +4,22 @@ package calculator
 import "errors"
 
 // Add takes two numbers and returns the result of adding them together.
-func Add(a, b float64) float64 {
-	return a + b
+func Add(nums ...float64) float64 {
+	var sum float64 = 0
+	for _, num := range nums {
+		sum += num
+	}
+	return sum
 }
 
 // Subtract takes two numbers and returns the result of subtracting the second
 // from the first.
-func Subtract(a, b float64) float64 {
-	return a - b
+func Subtract(nums ...float64) float64 {
+	var total float64 = nums[0]
+	for i := 1; i < len(nums); i++ {
+		total -= nums[i]
+	}
+	return total
 }
 
 // Multiply takes two numbers and returns the result of multiplying them together

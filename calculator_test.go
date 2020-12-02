@@ -8,7 +8,7 @@ import (
 )
 
 const testcount = 100
-const testcase_maxsize = 10
+const testcaseMaxsize = 10
 
 type testCases struct {
 	name string
@@ -25,7 +25,7 @@ func TestAddRand(t *testing.T) {
 	for count < testcount {
 		// get a random size for the number of values
 		// to add together
-		nums := make([]float64, r.Intn(testcase_maxsize))
+		nums := make([]float64, r.Intn(testcaseMaxsize))
 		// initialize nums slice to contain random values
 		var want float64 = 0
 		for i := range nums {

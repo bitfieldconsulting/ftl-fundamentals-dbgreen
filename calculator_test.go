@@ -151,3 +151,23 @@ func TestSqrt(t *testing.T) {
 
 	}
 }
+
+func TestParse(t *testing.T) {
+	t.Parallel()
+	var testCases = []struct {
+		name string
+		oper string
+		want float64
+	}{
+		{name: "Multiplication", oper: "5*2", want: 10},
+		{name: "Addition", oper: "5 + 2", want: 7},
+		{name: "Subtraction", oper: "7  -   2", want: 5},
+		{name: "Division", oper: "9 / 3", want: 3},
+	}
+	for _, tc := range testCases {
+		got, _ := calculator.Parse(tc.oper)
+		if tc.want != got {
+			t.Errorf("Parse(%s): wanted %f, got %f", tc.oper, tc.want, got)
+		}
+	}
+}

@@ -83,17 +83,17 @@ func TestMultiply(t *testing.T) {
 	t.Parallel()
 	var testCases = []struct {
 		name string
-		a, b float64
+		nums []float64
 		want float64
 	}{
-		{name: "Negative number multiplied with a positive results in negative", a: -1, b: 5, want: -5},
-		{name: "Two negative numbers multiplied result in a postive", a: -9, b: -3, want: 27},
-		{name: "Number multiplied by zero results in zero", a: 5, b: 0, want: 0},
+		{name: "Negative number multiplied with a positive results in negative", nums: []float64{-1, 5}, want: -5},
+		{name: "Two negative numbers multiplied result in a postive", nums: []float64{-3, -9}, want: 27},
+		{name: "Number multiplied by zero results in zero", nums: []float64{5, 0}, want: 0},
 	}
 	for _, tc := range testCases {
-		got := calculator.Multiply(tc.a, tc.b)
+		got := calculator.Multiply(tc.nums...)
 		if tc.want != got {
-			t.Errorf("Multiply(%f,%f): want %f, got %f in TestCase: %s", tc.a, tc.b, tc.want, got, tc.name)
+			t.Errorf("Multiply(%f): want %f, got %f in TestCase: %s", tc.nums, tc.want, got, tc.name)
 		}
 	}
 }
@@ -101,25 +101,25 @@ func TestDivide(t *testing.T) {
 	t.Parallel()
 	var testCases = []struct {
 		name        string
-		a, b        float64
+		nums        []float64
 		want        float64
 		errExpected bool
 	}{
-		{name: "Number divided by zero results in an error", a: 6, b: 0, want: 0, errExpected: true},
-		{name: "Number divided by another number results in an integer result", a: 6, b: 3, want: 2},
-		{name: "Number divided by another number results in a rational result", a: 10, b: 4, want: 2.5},
+		{name: "Number divided by zero results in an error", nums: []float64{6, 0}, want: 0, errExpected: true},
+		{name: "Number divided by another number results in an integer result", nums: []float64{6, 3}, want: 2},
+		{name: "Number divided by another number results in a rational result", nums: []float64{10, 4}, want: 2.5},
 	}
 
 	for _, tc := range testCases {
-		got, err := calculator.Divide(tc.a, tc.b)
+		got, err := calculator.Divide(tc.nums...)
 
 		errReceived := err != nil
 		if errReceived != tc.errExpected {
-			t.Fatalf("Divide(%f,%f): unexpected error status %v in TestCase: %s", tc.a, tc.b, err, tc.name)
+			t.Fatalf("Divide(%f): unexpected error status %v in TestCase: %s", tc.nums, err, tc.name)
 		}
 
 		if !tc.errExpected && tc.want != got {
-			t.Errorf("Divide (%f,%f): wanted %f, got %f in TestCase: %s", tc.a, tc.b, tc.want, got, tc.name)
+			t.Errorf("Divide(%f): wanted %f, got %f in TestCase: %s", tc.nums, tc.want, got, tc.name)
 		}
 
 	}

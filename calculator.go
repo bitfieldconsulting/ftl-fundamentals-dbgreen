@@ -26,16 +26,27 @@ func Subtract(nums ...float64) float64 {
 }
 
 // Multiply takes two numbers and returns the result of multiplying them together
-func Multiply(a, b float64) float64 {
-	return a * b
+func Multiply(nums ...float64) float64 {
+	var total float64 = nums[0]
+	for i := 1; i < len(nums); i++ {
+		total *= nums[i]
+	}
+	return total
 }
 
 // Divide takes two numbers and returns the result of dividing a by b
-func Divide(a, b float64) (float64, error) {
-	if b == 0 {
-		return 0, errors.New("Divide by Zero")
+func Divide(nums ...float64) (float64, error) {
+	if nums[0] == 0 {
+		return 0, errors.New("divide by zero")
 	}
-	return a / b, nil
+	total := nums[0]
+	for i := 1; i < len(nums); i++ {
+		if nums[i] == 0 {
+			return 0, errors.New("Divide by Zero")
+		}
+		total /= nums[i]
+	}
+	return total, nil
 }
 
 // Sqrt returns the square root of n

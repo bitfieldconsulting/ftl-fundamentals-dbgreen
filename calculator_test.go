@@ -124,3 +124,30 @@ func TestDivide(t *testing.T) {
 
 	}
 }
+func TestSqrt(t *testing.T) {
+	t.Parallel()
+	var testCases = []struct {
+		name        string
+		a           float64
+		want        float64
+		errExpected bool
+	}{
+		{name: "Sqrt of negative results in an error", a: -1, want: 0, errExpected: true},
+		{name: "Sqrt of zero results in a zero", a: 0, want: 0},
+		{name: "Sqrt of positive number results in positive number", a: 16, want: 4},
+	}
+
+	for _, tc := range testCases {
+		got, err := calculator.Sqrt(tc.a)
+
+		errReceived := err != nil
+		if errReceived != tc.errExpected {
+			t.Fatalf("Sqrt(%f): unexpected error status %v in TestCase: %s", tc.a, err, tc.name)
+		}
+
+		if !tc.errExpected && tc.want != got {
+			t.Errorf("Sqrt(%f): wanted %f, got %f in TestCase: %s", tc.a, tc.want, got, tc.name)
+		}
+
+	}
+}

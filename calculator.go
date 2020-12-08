@@ -7,45 +7,55 @@ import (
 	"math"
 )
 
-// Add takes two numbers and returns the result of adding them together.
-func Add(nums ...float64) float64 {
-	var sum float64 = 0
+// Add takes two or more numbers and returns the result of adding them together.
+func Add(a, b float64, nums ...float64) float64 {
+	var sum float64 = a + b
 	for _, num := range nums {
 		sum += num
 	}
 	return sum
 }
 
-// Subtract takes two numbers and returns the result of subtracting the second
+// Subtract takes two or more numbers and returns the result of subtracting the second
 // from the first.
-func Subtract(nums ...float64) float64 {
-	var total float64 = nums[0]
-	for i := 1; i < len(nums); i++ {
-		total -= nums[i]
+func Subtract(a, b float64, nums ...float64) float64 {
+	var total float64 = a - b
+	for _, num := range nums {
+		total -= num
 	}
 	return total
 }
 
-// Multiply takes two numbers and returns the result of multiplying them together
-func Multiply(nums ...float64) float64 {
-	var total float64 = nums[0]
-	for i := 1; i < len(nums); i++ {
-		total *= nums[i]
+// Multiply takes two or more numbers and returns the result of multiplying them together
+func Multiply(a, b float64, nums ...float64) float64 {
+	var total float64 = a * b
+	for _, num := range nums {
+		total *= num
 	}
 	return total
 }
 
-// Divide takes two numbers and returns the result of dividing a by b
-func Divide(nums ...float64) (float64, error) {
-	if nums[0] == 0 {
+// Divide takes two or more numbers and returns the result of dividing a by b
+func Divide(a, b float64, nums ...float64) (float64, error) {
+	if b == 0 {
 		return 0, errors.New("divide by zero")
 	}
-	total := nums[0]
-	for i := 1; i < len(nums); i++ {
-		if nums[i] == 0 {
+	// if the first number is zero then the result is zero.
+	if a == 0 {
+		return 0, nil
+	}
+
+	total := a / b
+	for _, num := range nums {
+		if num == 0 {
 			return 0, errors.New("divide by Zero")
 		}
-		total /= nums[i]
+		total /= num
+		// if total is ever zero we can immediately return
+		// zero.
+		if total == 0 {
+			return 0, nil
+		}
 	}
 	return total, nil
 }
@@ -58,27 +68,27 @@ func Sqrt(n float64) (float64, error) {
 	return math.Sqrt(n), nil
 }
 
-// Parse performs the computation passed in string
-func Parse(oper string) (float64, error) {
+// ExpressionProcessor performs the computation passed in string
+func ExpressionProcessor(expression string) (float64, error) {
 	var a, b float64
 	var operator string
-	count, err := fmt.Sscanf(oper, "%f%1s%f", &a, &operator, &b)
+	count, err := fmt.Sscanf(expression, "%f%1s%f", &a, &operator, &b)
 	if err != nil {
 		return 0, err
 	}
 	if count != 3 {
 		return 0, errors.New("wrong format")
 	}
-	nums := []float64{a, b}
+
 	switch operator {
 	case "+":
-		return Add(nums...), nil
+		return Add(a, b), nil
 	case "-":
-		return Subtract(nums...), nil
+		return Subtract(a, b), nil
 	case "*":
-		return Multiply(nums...), nil
+		return Multiply(a, b), nil
 	case "/":
-		return Divide(nums...)
+		return Divide(a, b)
 	default:
 		return 0, errors.New("unknown operation")
 	}

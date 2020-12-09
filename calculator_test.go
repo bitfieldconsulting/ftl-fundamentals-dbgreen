@@ -178,12 +178,17 @@ func TestDivide(t *testing.T) {
 			want: 2.5,
 		},
 		{
-			name:        "Incorrect division but no err expected",
-			arg1:        1000,
-			arg2:        10,
-			nums:        []float64{10, 4},
-			want:        2.5,
-			errExpected: false,
+			name: "Incorrect division but no err expected",
+			arg1: 1000,
+			arg2: 10,
+			nums: []float64{10, 4},
+			want: 2.5,
+		},
+		{
+			name: "Irrational result is 'close enough'",
+			arg1: 1,
+			arg2: 3,
+			want: .33333,
 		},
 	}
 
@@ -233,19 +238,57 @@ func TestSqrt(t *testing.T) {
 func TestExpressionProcessor(t *testing.T) {
 	t.Parallel()
 	var testCases = []struct {
-		name string
-		oper string
-		want float64
+		name        string
+		expr        string
+		want        float64
+		errExpected bool
 	}{
-		{name: "Multiplication", oper: "5*2", want: 10},
-		{name: "Addition", oper: "5 + 2", want: 7},
-		{name: "Subtraction", oper: "7  -   2", want: 5},
-		{name: "Division", oper: "9 / 3", want: 3},
+		{
+			name: "Expression with no whitespace",
+			expr: "5*2",
+			want: 10,
+		},
+		{
+			name: "Expression with standard whitespace",
+			expr: "5 + 2",
+			want: 7,
+		},
+		{
+			name: "Expression with extra whitespace",
+			expr: "7  -   2",
+			want: 5,
+		},
+		{
+			name: "Division",
+			expr: "9 / 3",
+			want: 3,
+		},
+		{
+			name:        "Incomplete Expression",
+			expr:        "5*",
+			errExpected: true,
+		},
+		{
+			name:        "Malformed Expression (postfix)",
+			expr:        "5 7 *",
+			want:        35,
+			errExpected: true,
+		},
 	}
 	for _, tc := range testCases {
-		got, _ := calculator.ExpressionProcessor(tc.oper)
-		if tc.want != got {
-			t.Errorf("Parse(%s): wanted %f, got %f", tc.oper, tc.want, got)
+		got, err := calculator.ExpressionProcessor(tc.expr)
+
+		errReceived := err != nil
+
+		if errReceived != tc.errExpected {
+			t.Fatalf("ExpressionProcessor(%s): unexpected error status %v in TestCase: %s", tc.expr, err, tc.name)
 		}
+
+		expectedResult := closeEnough(tc.want, got, 0.0001)
+
+		if !tc.errExpected && !expectedResult {
+			t.Errorf("ExpressionProcessor(%s): wanted %f, got %f in TestCase: %s", tc.expr, tc.want, got, tc.name)
+		}
+
 	}
 }

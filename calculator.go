@@ -63,7 +63,7 @@ func Divide(a, b float64, nums ...float64) (float64, error) {
 // Sqrt returns the square root of n
 func Sqrt(n float64) (float64, error) {
 	if n < 0 {
-		return 0, errors.New("sqrt of negative number")
+		return 0, fmt.Errorf("bad input %f: square root of a negative number is undefined", n)
 	}
 	return math.Sqrt(n), nil
 }
@@ -72,12 +72,15 @@ func Sqrt(n float64) (float64, error) {
 func ExpressionProcessor(expression string) (float64, error) {
 	var a, b float64
 	var operator string
+
 	count, err := fmt.Sscanf(expression, "%f%1s%f", &a, &operator, &b)
+
 	if err != nil {
 		return 0, err
 	}
+
 	if count != 3 {
-		return 0, errors.New("wrong format")
+		return 0, fmt.Errorf("ExpressionProcessor was passed an expression with %d arguments when 3 are required", count)
 	}
 
 	switch operator {
@@ -90,7 +93,7 @@ func ExpressionProcessor(expression string) (float64, error) {
 	case "/":
 		return Divide(a, b)
 	default:
-		return 0, errors.New("unknown operation")
+		return 0, fmt.Errorf("ExpressionProcessor was passed an unknown operation in expression %s", expression)
 	}
 
 }

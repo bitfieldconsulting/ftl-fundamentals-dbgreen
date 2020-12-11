@@ -15,50 +15,32 @@ func closeEnough(a, b, epsilon float64) bool {
 	return false
 }
 
-const testcount = 100
-const testcaseMaxsize = 10
+var random = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 func TestAddRand(t *testing.T) {
 	t.Parallel()
-	seed := rand.NewSource(time.Now().UnixNano())
-	r := rand.New(seed)
 	count := 0
-	// run the test addcount times
-	for count < testcount {
-		// get a random size for the number of values
-		// to add together
-		nums := make([]float64, r.Intn(testcaseMaxsize))
-		// initialize nums slice to contain random values
-
-		arg1 := r.NormFloat64()
-		arg2 := r.NormFloat64()
-
-		want := arg1 + arg2
+	for count < 100 {
+		nums := make([]float64, random.Intn(10))
 		for i := range nums {
-			nums[i] = r.NormFloat64()
-			want += nums[i]
+			nums[i] = random.NormFloat64()
 		}
-		var testCases = []struct {
-			name string
-			arg1 float64
-			arg2 float64
-			nums []float64
-			want float64
-		}{
-			{name: "Random value data", arg1: arg1, arg2: arg2, nums: nums, want: want},
+		arg1 := random.NormFloat64()
+		arg2 := random.NormFloat64()
+		want := arg1 + arg2
+		for _, val := range nums {
+			want += val
 		}
-		for _, tc := range testCases {
-			got := calculator.Add(tc.arg1, tc.arg2, tc.nums...)
-			if !closeEnough(tc.want, got, 0.0001) {
-				t.Errorf("Add (%f,%f,%v): want %f, got %f", tc.arg1, tc.arg2, tc.nums, tc.want, got)
-			}
+		got := calculator.Add(arg1, arg2, nums...)
+		if !closeEnough(want, got, 0.0001) {
+			t.Errorf("Add (%f,%f,%v): want %f, got %f", arg1, arg2, nums, want, got)
 		}
 		count++
 	}
 }
-
 func TestAddMultSub(t *testing.T) {
 	t.Parallel()
+
 	tcs := []struct {
 		operation func(float64, float64, ...float64) float64
 		name      string
@@ -67,7 +49,6 @@ func TestAddMultSub(t *testing.T) {
 		nums      []float64
 		want      float64
 	}{
-		// add test cases
 		{
 			operation: calculator.Add,
 			name:      "Add: multiple numbers that sum to a positive",
@@ -84,7 +65,6 @@ func TestAddMultSub(t *testing.T) {
 			nums:      []float64{-2, -3, -4},
 			want:      -7,
 		},
-		// multiply test cases
 		{
 			operation: calculator.Multiply,
 			name:      "Negative number multiplied with a positive results in negative",
@@ -109,7 +89,6 @@ func TestAddMultSub(t *testing.T) {
 			nums:      []float64{5, 0},
 			want:      0,
 		},
-		// subtract test cases
 		{
 			operation: calculator.Subtract,
 			name:      "Numbers that subtract to a negative",
@@ -147,7 +126,7 @@ func TestAddMultSub(t *testing.T) {
 
 func TestDivide(t *testing.T) {
 	t.Parallel()
-	var testCases = []struct {
+	tcs := []struct {
 		name        string
 		arg1        float64
 		arg2        float64
@@ -156,12 +135,25 @@ func TestDivide(t *testing.T) {
 		errExpected bool
 	}{
 		{
-			name:        "Number divided by zero results in an error",
+			name:        "Zero in optional parameters results in an error",
 			arg1:        5,
 			arg2:        7,
 			nums:        []float64{6, 0},
 			want:        0,
 			errExpected: true,
+		},
+		{
+			name:        "Zero as second argument results in an error",
+			arg1:        5,
+			arg2:        0,
+			want:        0,
+			errExpected: true,
+		},
+		{
+			name: "Zero as first argument returns a zero",
+			arg1: 0,
+			arg2: 5,
+			want: 0,
 		},
 		{
 			name: "Number divided by another number results in an integer result",
@@ -178,13 +170,6 @@ func TestDivide(t *testing.T) {
 			want: 2.5,
 		},
 		{
-			name: "Incorrect division but no err expected",
-			arg1: 1000,
-			arg2: 10,
-			nums: []float64{10, 4},
-			want: 2.5,
-		},
-		{
 			name: "Irrational result is 'close enough'",
 			arg1: 1,
 			arg2: 3,
@@ -192,7 +177,7 @@ func TestDivide(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
+	for _, tc := range tcs {
 		got, err := calculator.Divide(tc.arg1, tc.arg2, tc.nums...)
 
 		errReceived := err != nil
@@ -209,18 +194,31 @@ func TestDivide(t *testing.T) {
 
 func TestSqrt(t *testing.T) {
 	t.Parallel()
-	var testCases = []struct {
+	tcs := []struct {
 		name        string
 		a           float64
 		want        float64
 		errExpected bool
 	}{
-		{name: "Sqrt of negative results in an error", a: -1, want: 0, errExpected: true},
-		{name: "Sqrt of zero results in a zero", a: 0, want: 0},
-		{name: "Sqrt of positive number results in positive number", a: 16, want: 4},
+		{
+			name:        "Sqrt of negative results in an error",
+			a:           -1,
+			want:        0,
+			errExpected: true,
+		},
+		{
+			name: "Sqrt of zero results in a zero",
+			a:    0,
+			want: 0,
+		},
+		{
+			name: "Sqrt of positive number results in positive number",
+			a:    16,
+			want: 4,
+		},
 	}
 
-	for _, tc := range testCases {
+	for _, tc := range tcs {
 		got, err := calculator.Sqrt(tc.a)
 
 		errReceived := err != nil
@@ -235,9 +233,9 @@ func TestSqrt(t *testing.T) {
 	}
 }
 
-func TestExpressionProcessor(t *testing.T) {
+func TestEvaluateExpression(t *testing.T) {
 	t.Parallel()
-	var testCases = []struct {
+	tcs := []struct {
 		name        string
 		expr        string
 		want        float64
@@ -274,21 +272,21 @@ func TestExpressionProcessor(t *testing.T) {
 			want:        35,
 			errExpected: true,
 		},
+		{
+			name:        "Unknown operation",
+			expr:        "5 & 7",
+			errExpected: true,
+		},
 	}
-	for _, tc := range testCases {
-		got, err := calculator.ExpressionProcessor(tc.expr)
-
+	for _, tc := range tcs {
+		got, err := calculator.EvaluateExpression(tc.expr)
 		errReceived := err != nil
-
 		if errReceived != tc.errExpected {
-			t.Fatalf("ExpressionProcessor(%s): unexpected error status %v in TestCase: %s", tc.expr, err, tc.name)
+			t.Fatalf("EvaluateExpression(%s): unexpected error status %v in TestCase: %s", tc.expr, err, tc.name)
 		}
-
 		expectedResult := closeEnough(tc.want, got, 0.0001)
-
 		if !tc.errExpected && !expectedResult {
-			t.Errorf("ExpressionProcessor(%s): wanted %f, got %f in TestCase: %s", tc.expr, tc.want, got, tc.name)
+			t.Errorf("EvaluateExpression(%s): wanted %f, got %f in TestCase: %s", tc.expr, tc.want, got, tc.name)
 		}
-
 	}
 }
